@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const db = require('../../config/db');
+const bcrypt = require('bcrypt');
 const secretKey = 'secret';
 
 const router = express.Router();
@@ -16,7 +17,8 @@ router.post('/register', async (req, res) => {
         );
         res.status(201).send('User created successfully');
     } catch (error) {
-        res.status(500).send('Error registering user');
+        console.error(error);
+        res.status(500).send('Error registering user: ');
     }
 });
 

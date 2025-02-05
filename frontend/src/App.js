@@ -1,13 +1,22 @@
-import './App.css';
-import Register from './components/Register';
-import Login from './components/Login';
+import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Welcome from "./pages/Welcome.js"; // AKA the login page
+import Home from "./pages/Home.js";
+import Register from "./components/Register.js";
+import PrivateRoute from "./components/PrivateRoute.js";
+
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <Register />
-        <Login />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Welcome />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/home" element={<PrivateRoute><Home /> </PrivateRoute>} />
+          </Routes>
+        </BrowserRouter>
       </header>
     </div>
   );

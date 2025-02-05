@@ -9,7 +9,7 @@ services:
     environment:
       - NODE_ENV=development
     volumes:
-      - ./backend:/usr/src/app
+      - ./backend:/app
     stdin_open: true
     tty: true
     depends_on:
@@ -22,17 +22,19 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/usr/src/app
-      
+      - ./frontend:/app
+
   mysql:
     image: mysql:8.0
     container_name: trello_mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: trello_db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     volumes:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./db/backup_mysql.sh:/backup_mysql.sh
+      - ./db/backup_restore.sh:/backup_restore.sh
+      - ./db/wait-for-it.sh:/wait-for-it.sh
       - ./db/backups_db:/backups_db
       - ./db_data:/var/lib/mysql
     ports:

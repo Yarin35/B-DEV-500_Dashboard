@@ -4,6 +4,7 @@ import Welcome from "./pages/Welcome.js"; // AKA the login page
 import Home from "./pages/Home.js";
 import Register from "./components/Register.js";
 import PrivateRoute from "./components/PrivateRoute.js";
+import Dashboard from "./pages/Dashboard.js";
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
             <Route path="/" element={<Welcome />} />
             <Route path="/register" element={<Register />} />
             <Route path="/home" element={<PrivateRoute><Home /> </PrivateRoute>} />
+            <Route path="/dashboard/:id" element={<PrivateRoute><Dashboard /> </PrivateRoute>} />
           </Routes>
         </BrowserRouter>
       </header>

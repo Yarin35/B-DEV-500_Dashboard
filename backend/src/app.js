@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const authRouter = require("./routes/auth");
+const dashboardRouter = require("./routes/dashboard");
 const bodyParser = require("body-parser");
 const passport = require("./config/passport");
 const session = require("express-session");
@@ -20,6 +21,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRouter);
+app.use("/dashboard", dashboardRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

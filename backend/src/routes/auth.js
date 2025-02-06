@@ -18,7 +18,7 @@ router.post('/register', async (req, res) => {
             // If user already exists, update the password and username
             await db.execute('UPDATE users SET username = ?, hashed_password = ? WHERE id = ?', [username, hashedPassword, existingUser[0].id]);
             const token = jwt.sign({ id: existingUser[0].id, username: existingUser[0].username }, secretKey, { expiresIn: '1h' });
-            res.json({ token });
+            res.json({ token, userId: existingUser[0].id });
         } else {
             // Create a new user
             const [result] = await db.execute(
@@ -26,7 +26,7 @@ router.post('/register', async (req, res) => {
                 [username, email, hashedPassword]
             );
             const token = jwt.sign({ id: result.insertId, username }, secretKey, { expiresIn: '1h' });
-            res.status(201).json({ token });
+            res.status(201).json({ token, userId: result.insertId });
         }
     } catch (error) {
         console.error(error);
@@ -75,11 +75,11 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
         if (existingUser.length > 0) {
             await db.execute('UPDATE users SET google_id = ? WHERE id = ?', [req.user.google_id, existingUser[0].id]);
             const token = jwt.sign({ id: existingUser[0].id, username: existingUser[0].username }, secretKey, { expiresIn: '24h' });
-            res.redirect(`http://localhost:3000?token=${token}`);
+            res.redirect(`http://localhost:3000?token=${token}&userId=${existingUser[0].id}`);
         } else {
             await db.execute('INSERT INTO users (username, email, google_id) VALUES (?, ?, ?)', [req.user.username, req.user.email, req.user.google_id]);
             const token = jwt.sign({ id: req.user.id, username: req.user.username }, secretKey, { expiresIn: '24h' });
-            res.redirect(`http://localhost:3000?token=${token}`);
+            res.redirect(`http://localhost:3000?token=${token}$userId=${req.user.id}`);
         }
     } catch (error) {
         console.error(error);

@@ -19,8 +19,10 @@ const Login = () => {
   useEffect (() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
-    if (token) {
+    const userId = urlParams.get("userId");
+    if (token && userId) {
       localStorage.setItem("token", token);
+      localStorage.setItem("userId", userId);
       showNotification("Login successful", "success");
       navigate("/home");
     };
@@ -32,6 +34,7 @@ const Login = () => {
       const data = { email, password };
       const response = await loginUser(data);
       localStorage.setItem("token", response.token);
+      localStorage.setItem("userId", response.userId);
       showNotification("Login successful", "success");
       navigate("/home");
     } catch (error) {

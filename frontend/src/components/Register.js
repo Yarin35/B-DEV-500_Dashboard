@@ -20,6 +20,7 @@ const Register = () => {
       const data = { email, username, password };
       const response = await registerUser(data);
       localStorage.setItem("token", response.token);
+      localStorage.setItem("userId", response.userId);
       showNotification("Registration successful", "success");
       navigate("/home");
     } catch (error) {

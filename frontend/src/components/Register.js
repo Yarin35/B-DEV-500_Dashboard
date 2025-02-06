@@ -12,7 +12,7 @@ const Register = () => {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const navigate = useNavigate();
-  const { showNotification } = React.userContext(NotificationContext);
+  const { showNotification } = React.useContext(NotificationContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

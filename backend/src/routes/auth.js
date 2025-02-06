@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../../config/db');
 const bcrypt = require('bcrypt');
 const secretKey = 'secret';
+const passport = require('passport');
 
 const router = express.Router();
 
@@ -50,4 +51,10 @@ router.post('/login', async (req, res) => {
     }
 });
 
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
+    const token = jwt.sign({ id: req.user.id, username: req.user.username }, secretKey, { expiresIn: '24h' });
+    res.redirect(`http://localhost:3000?token=${token}`);
+});
 module.exports = router;

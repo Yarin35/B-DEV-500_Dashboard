@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   server:
     build:
@@ -14,7 +14,7 @@ services:
     tty: true
     depends_on:
       - mysql
-    
+
   frontend:
     build:
       context: ./frontend
@@ -31,12 +31,12 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
     volumes:
+      - db-data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./db/backup_mysql.sh:/backup_mysql.sh
       - ./db/backup_restore.sh:/backup_restore.sh
       - ./db/wait-for-it.sh:/wait-for-it.sh
       - ./db/backups_db:/backups_db
-      - ./db_data:/var/lib/mysql
     ports:
       - "3306:3306"
 

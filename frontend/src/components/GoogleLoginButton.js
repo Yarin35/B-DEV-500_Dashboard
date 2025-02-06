@@ -1,10 +1,19 @@
 import React from "react";
-import Button from "@mui/material/Button";
+import Button from '@mui/material/Button';
 
-const GoogleLoginButton = ({ onClick }) => {
+const GoogleLoginButton = () => {
+
+  const handleLoginSuccess = async () => {
+    try {
+      window.location.href = 'http://localhost:3001/auth/google';
+    } catch (error) {
+      console.error('Error logging in: ', error);
+    }
+  };
+
   return (
-    <Button variant="contained" color="secondary" onClick={onClick}>
-      Login With Google
+    <Button variant="contained" color="primary" onClick={handleLoginSuccess}>
+        Login with Google
     </Button>
   );
 };

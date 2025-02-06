@@ -5,20 +5,25 @@ import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { NotificationContext } from '../context/NotificationContext.js';
 
 const Register = () => {
   const [email, setEmail] = React.useState("");
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const navigate = useNavigate();
+  const { showNotification } = React.userContext(NotificationContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const data = { email, username, password };
-      await registerUser(data);
-      navigate("/");
+      const response = await registerUser(data);
+      localStorage.setItem("token", response.token);
+      showNotification("Registration successful", "success");
+      navigate("/home");
     } catch (error) {
+        showNotification("Registration failed: " + error.response.data, "error");
         console.log('Error registering user:', error);
     }
   };

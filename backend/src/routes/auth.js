@@ -25,8 +25,16 @@ router.post('/register', async (req, res) => {
                 'INSERT INTO users (username, email, hashed_password) VALUES (?, ?, ?)',
                 [username, email, hashedPassword]
             );
-            const token = jwt.sign({ id: result.insertId, username }, secretKey, { expiresIn: '1h' });
-            res.status(201).json({ token, userId: result.insertId });
+            const userId = result.insertId;
+
+            const [freeServices] = await db.execute('SELECT id FROM services WHERE requires_auth = false');
+            const userServices = freeServices.map(service => [userId, service.id]);
+            if (userServices.length > 0) {
+                await db.query('INSERT INTO user_services (user_id, service_id) VALUES ?', [userServices]);
+            }
+
+            const token = jwt.sign({ id: userId, username }, secretKey, { expiresIn: '1h' });
+            res.status(201).json({ token, userId: userId });
         }
     } catch (error) {
         console.error(error);
@@ -77,7 +85,16 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
             const token = jwt.sign({ id: existingUser[0].id, username: existingUser[0].username }, secretKey, { expiresIn: '24h' });
             res.redirect(`http://localhost:3000?token=${token}&userId=${existingUser[0].id}`);
         } else {
-            await db.execute('INSERT INTO users (username, email, google_id) VALUES (?, ?, ?)', [req.user.username, req.user.email, req.user.google_id]);
+            const [ result ] = await db.execute('INSERT INTO users (username, email, google_id) VALUES (?, ?, ?)', [req.user.username, req.user.email, req.user.google_id]);
+
+            const userId = result.insertId;
+
+            const [freeServices] = await db.execute('SELECT id FROM services WHERE requires_auth = false');
+            const userServices = freeServices.map(service => [userId, service.id]);
+            if (userServices.length > 0) {
+                await db.query('INSERT INTO user_services (user_id, service_id) VALUES ?', [userServices]);
+            }
+
             const token = jwt.sign({ id: req.user.id, username: req.user.username }, secretKey, { expiresIn: '24h' });
             res.redirect(`http://localhost:3000?token=${token}$userId=${req.user.id}`);
         }

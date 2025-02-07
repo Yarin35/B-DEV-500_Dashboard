@@ -1,6 +1,12 @@
 const express = require('express');
 const db = require('../../config/db');
+const populateDB = require('../utils/populateDB.js');
 const router = express.Router();
+
+router.use(async (req, res, next) => {
+  await populateDB();
+  next();
+});
 
 // Create a new dashboard
 router.post('/', async (req, res) => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Box,
   Tabs,
@@ -14,14 +14,12 @@ import {
 } from "@mui/material";
 import { Home, Warning } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import {
-  getServices,
-  getUserServices,
-  subscribeService,
-} from "../services/services.js";
+import { getServices, getUserServices } from "../services/services.js";
 import ExpandableList from "./ExpandableList.js";
+import axios from "axios";
+import { NotificationContext } from "../context/NotificationContext.js";
 
-const SideBar = ({ version }) => {
+const SideBar = ({ version, dashboardId }) => {
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -31,6 +29,7 @@ const SideBar = ({ version }) => {
   const [selectedService, setSelectedService] = useState(null);
   const [expandedService, setExpandedService] = useState(null);
   const userId = localStorage.getItem("userId");
+  const { showNotification } = useContext(NotificationContext);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -93,11 +92,52 @@ const SideBar = ({ version }) => {
   };
 
   const handleSubscribe = async () => {
-    await subscribeService(userId, selectedService.id);
-    const updatedServices = await getUserServices(userId);
-    setUserServices(updatedServices);
-    setOpenModal(false);
+    if (!selectedService) {
+      console.error("No service selected");
+      return;
+    }
+
+    const serviceId = selectedService.id;
+    const userId = localStorage.getItem("userId");
+    try {
+      const response = await axios.get(`http://localhost:3001/auth/google`, {
+        params: { serviceId, userId, dashboardId },
+      });
+
+      if (response.data && response.data.authUrl) {
+        console.log("Redirecting to OAuth URL:", response.data.authUrl);
+        window.location.href = response.data.authUrl;
+      } else {
+        console.error("Failed to retrieve OAuth URL");
+      }
+    } catch (error) {
+      console.error("Error subscribing to service:", error);
+    }
   };
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+    const userId = urlParams.get("userId");
+    const accessToken = urlParams.get("accessToken");
+    const dashboardId = urlParams.get("dashboardId");
+
+    if (token && userId && accessToken) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("accessToken", accessToken);
+      setUserServices([...userServices, { id: selectedService.id }]);
+      showNotification("Subscription successful", "success");
+      navigate(`/dashboard/${dashboardId}`); // Redirect to dashboard or any other page
+    }
+  }, [
+    navigate,
+    showNotification,
+    setUserServices,
+    selectedService,
+    userServices,
+  ]);
 
   return (
     <Box
@@ -135,7 +175,7 @@ const SideBar = ({ version }) => {
                   {isServiceSubscribed(service.id) ? (
                     <ExpandableList
                       title={service.name}
-                      items={service.widgets.map((widget) => widget.name)}
+                      items={service.widgets}
                       sx={{ bgcolor: "gray.100" }}
                     />
                   ) : (
@@ -154,7 +194,7 @@ const SideBar = ({ version }) => {
                     >
                       <Typography>{service.name}</Typography>
                       <Warning color="error" />
-                      </Box>
+                    </Box>
                   )}
                 </Box>
               </Tooltip>

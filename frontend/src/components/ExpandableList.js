@@ -6,9 +6,9 @@ import {
   Collapse,
   List,
   ListItem,
-  ListItemText,
 } from "@mui/material";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
+import DraggableWidget from "./DraggableWidget.js";
 
 const ExpandableList = ({ title, items }) => {
   const [expanded, setExpanded] = useState(false);
@@ -40,7 +40,7 @@ const ExpandableList = ({ title, items }) => {
         <List>
           {items.map((item, index) => (
             <ListItem key={index}>
-              <ListItemText primary={item} sx={{ color: "gray" }} />
+              <DraggableWidget widget={item} />
             </ListItem>
           ))}
         </List>

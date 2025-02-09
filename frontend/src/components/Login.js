@@ -6,7 +6,6 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import GoogleLoginButton from "./GoogleLoginButton";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import SnackBar from "./SnackBar.js";
 import { NotificationContext } from "../context/NotificationContext.js";
 
@@ -16,7 +15,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { showNotification } = useContext(NotificationContext);
 
-  useEffect (() => {
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
     const userId = urlParams.get("userId");
@@ -25,7 +24,7 @@ const Login = () => {
       localStorage.setItem("userId", userId);
       showNotification("Login successful", "success");
       navigate("/home");
-    };
+    }
   }, [navigate, showNotification]);
 
   const handleSubmit = async (e) => {
@@ -70,9 +69,7 @@ const Login = () => {
         </Button>
       </form>
       <div style={{ margin: "10px" }}>or</div>
-      <GoogleOAuthProvider>
-        <GoogleLoginButton />
-      </GoogleOAuthProvider>
+      <GoogleLoginButton />
       <SnackBar />
     </Container>
   );

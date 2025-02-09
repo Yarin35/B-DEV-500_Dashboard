@@ -7,14 +7,18 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL,
     hashed_password VARCHAR(255),
     google_id VARCHAR(255),
+    access_token VARCHAR(255),
+    refresh_token VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS dashboard (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    content JSON,
     user_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS services (
@@ -43,11 +47,11 @@ CREATE TABLE IF NOT EXISTS widgets (
     FOREIGN KEY (service_id) REFERENCES services(id)
 );
 
-CREATE TABLE IF NOT EXISTS user_widgets (
+CREATE TABLE IF NOT EXISTS dashboard_widgets (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    dashboard_id INT NOT NULL,
     widget_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (dashboard_id) REFERENCES dashboard(id),
     FOREIGN KEY (widget_id) REFERENCES widgets(id)
 );

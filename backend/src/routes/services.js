@@ -55,7 +55,7 @@ router.post('/subscribe', async (req, res) => {
   if (!userId || !serviceId) {
     return res.status(400).send('User ID and service ID are required');
   }
-  console.log('params are:', userId, serviceId);
+
   try {
     const [service] = await db.execute('SELECT * FROM services WHERE id = ?', [serviceId]);
     const [existingSubscription] = await db.execute('SELECT * FROM user_services WHERE user_id = ? AND service_id = ?', [userId, serviceId]);
@@ -64,23 +64,15 @@ router.post('/subscribe', async (req, res) => {
       return res.status(200).send('User already subscribed to service or service not found');
     }
 
-    await db.execute('INSERT INTO user_services (user_id, service_id) VALUES (?, ?)', [userId, serviceId]);
-    res.status(201).send('Subscribed to service');
+    if (service[0].registration_required) {
+      return res.redirect(`/auth/google?serviceId=${serviceId}&userId=${userId}`);
+    } else {
+      await db.execute('INSERT INTO user_services (user_id, service_id) VALUES (?, ?)', [userId, serviceId]);
+      res.status(201).send('Subscribed to service');
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send('Error subscribing to service');
-  }
-});
-
-// GET widgets for a service
-router.get('/:serviceId/widgets', async (req, res) => {
-  const { serviceId } = req.params;
-  try {
-    const [widgets] = await db.execute('SELECT * FROM widgets WHERE service_id = ?', [serviceId]);
-    res.json(widgets);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error fetching widgets');
   }
 });
 

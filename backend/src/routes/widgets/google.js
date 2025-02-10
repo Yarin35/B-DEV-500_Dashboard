@@ -37,6 +37,7 @@ const refreshGoogleAccessToken = async (refreshToken) => {
 };
 
 router.get("/1/data", async (req, res) => {
+  return res.status(500).send("Deviation !");
   const { calendarId, accessToken } = req.query;
 
   try {
@@ -56,6 +57,7 @@ router.get("/1/data", async (req, res) => {
 });
 
 router.get("/2/data", async (req, res) => {
+  return res.status(500).send("Deviation !");
   const { channelId } = req.query;
   let accessToken = req.headers.authorization.split(" ")[1];
   const userId = req.headers["x-user-id"];
@@ -103,6 +105,7 @@ router.get("/2/data", async (req, res) => {
 });
 
 router.get("/3/data", async (req, res) => {
+  return res.status(500).send("Deviation !");
   const { videoId, accessToken } = req.query;
 
   try {
@@ -126,6 +129,7 @@ router.get("/3/data", async (req, res) => {
 });
 
 router.get("/4/data", async (req, res) => {
+  return res.status(500).send("Deviation !");
   const { videoId, accessToken } = req.query;
 
   try {

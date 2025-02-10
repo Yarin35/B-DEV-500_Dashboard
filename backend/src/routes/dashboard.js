@@ -80,14 +80,30 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-router.post('/:id/widgets', async (req, res) => {
-  const { id } = req.params;
-  const { widgetId } = req.body;
+router.get('/:id/widgets', async (req, res) => {
+  const { id } = req.params; // This is the dashboard_id
 
   try {
+    const [widgets] = await db.execute(
+      'SELECT w.*, dw.position FROM widgets w JOIN dashboard_widgets dw ON w.id = dw.widget_id WHERE dw.dashboard_id = ?',
+      [id]
+    );
+    res.json(widgets);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error fetching widgets for dashboard');
+  }
+});
+
+router.post('/:id/widgets', async (req, res) => {
+  const { id } = req.params;
+  const { widgetId, position, config } = req.body;
+
+  try {
+    console.log('params are: ', {id, widgetId, position});
     await db.execute(
-      'INSERT INTO dashboard_widgets (dashboard_id, widget_id) VALUES (?, ?)',
-      [id, widgetId]
+      'INSERT INTO dashboard_widgets (dashboard_id, widget_id, position, config) VALUES (?, ?, ?, ?)',
+      [id, widgetId, position, config]
     );
     res.status(201).send('Widget added to dashboard');
   } catch (error) {
@@ -96,18 +112,25 @@ router.post('/:id/widgets', async (req, res) => {
   }
 });
 
-router.get('/:id/widgets', async (req, res) => {
-  const { id } = req.params; // This is the dashboard_id
+router.post('/:id/save', async (req, res) => {
+  const { id } = req.params;
+  const { widgets } = req.body;
 
   try {
-    const [widgets] = await db.execute(
-      'SELECT w.* FROM widgets w JOIN dashboard_widgets dw ON w.id = dw.widget_id WHERE dw.dashboard_id = ?',
-      [id]
-    );
-    res.json(widgets);
+    for (const widget of widgets) {
+      if (!widget.position || !widget.config) {
+        console.error("Position not found for widget:", widget.id);
+        continue;
+      }
+      await db.execute(
+        'INSERT INTO dashboard_widgets (dashboard_id, widget_id, position, config) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE position = VALUES(position)',
+        [id, widget.id, JSON.stringify(widget.position), JSON.stringify(widget.config)]
+      );
+    }
+    res.status(201).send('Dashboard content saved successfully');
   } catch (error) {
     console.error(error);
-    res.status(500).send('Error fetching widgets for dashboard');
+    res.status(500).send('Error saving dashboard content');
   }
 });
 

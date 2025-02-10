@@ -5,9 +5,11 @@ const DraggableWidget = ({ widget }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "WIDGET",
     item: { widgetName: widget.name },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-    }),
+    collect: (monitor) => {
+      return {
+        isDragging: !!monitor.isDragging(),
+      };
+    },
   }));
 
   return (

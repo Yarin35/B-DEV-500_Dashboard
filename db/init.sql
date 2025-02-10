@@ -51,6 +51,8 @@ CREATE TABLE IF NOT EXISTS dashboard_widgets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     dashboard_id INT NOT NULL,
     widget_id INT NOT NULL,
+    position JSON NOT NULL,
+    config JSON NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (dashboard_id) REFERENCES dashboard(id),
     FOREIGN KEY (widget_id) REFERENCES widgets(id)

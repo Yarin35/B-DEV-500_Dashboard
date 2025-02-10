@@ -1,50 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useRef } from "react";
 import { Box, Button } from "@mui/material";
 import SideBar from "../components/SideBar.js";
 import DraggableArea from "../components/DraggableArea.js";
-import axios from "axios";
 import { useParams } from "react-router-dom";
 
 const Dashboard = () => {
   const { id } = useParams();
-  const [widgets, setWidgets] = useState([]);
+  const draggableAreaRef = useRef(null);
 
-  useEffect(() => {
-    const fetchWidgets = async () => {
-      try {
-        const response = await axios.get("http://localhost:3001/widgets");
-        setWidgets(response.data);
-      } catch (error) {
-        console.error("Error fetching widgets:", error);
-      }
-    };
-    fetchWidgets();
-  }, []);
-
-  useEffect(() => {}, [widgets]);
-
-  useEffect(() => {
-    const fetchDashboardContent = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3001/dashboard/${id}/content`
-        );
-        setWidgets(response.data);
-      } catch (error) {
-        console.error("Error fetching dashboard content:", error);
-      }
-    };
-    fetchDashboardContent();
-  }, [id]);
-
-  const handleSaveDashboard = async () => {
-    try {
-      await axios.post(`http://localhost:3001/dashboard/${id}/widgets`, {
-        widgetId: widgets.map(widget => widget.id),
-      });
-      console.log("Dashboard content saved successfully");
-    } catch (error) {
-      console.error("Error saving dashboard content:", error);
+  const handleSaveDashboard = () => {
+    if (draggableAreaRef.current) {
+      draggableAreaRef.current.saveDashboard();
+      console.log('Dashboard saved');
     }
   };
 
@@ -69,13 +36,15 @@ const Dashboard = () => {
           backgroundColor="#f0f0f0"
           sx={{ backgroundColor: "transparent" }}
         >
-          <DraggableArea dashboardId={id}widgets={widgets} />
+          <DraggableArea
+            dashboardId={id}
+          />
         </Box>
         <Button
           variant="contained"
           color="primary"
-          onClick={handleSaveDashboard}
-          sx={{ mt: 2 }}
+          onClick={() => handleSaveDashboard}
+          sx={{ ml: 2 }}
         >
           Save Dashboard
         </Button>

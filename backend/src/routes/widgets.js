@@ -2,7 +2,7 @@ const express = require("express");
 const db = require("../../config/db.js");
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const [widgets] = await db.execute("SELECT * FROM widgets");
     res.json(widgets);
@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get("/:serviceId/widgets", async (req, res) => {
+router.get("/srvice/:serviceId/widgets", async (req, res) => {
   const { serviceId } = req.params;
   try {
     const [widgets] = await db.execute(
@@ -44,11 +44,17 @@ router.get("/:widgetId/config", async (req, res) => {
   }
 });
 
-router.get('/:dashboardId/widgets', async (req, res) => {
+router.get("/:dashboardId/widgets", async (req, res) => {
   const { dashboardId } = req.params;
 
   try {
-    const [widgets] = await db.execute('SELECT w.* FROM widgets w JOIN dashboard_widgets dw ON w.id = dw.widget_id WHERE dw.dashboard_id = ?', [dashboardId]);
+    const [widgets] = await db.execute(
+      `SELECT dw.*, w.name 
+       FROM dashboard_widgets dw 
+       JOIN widgets w ON dw.widget_id = w.id 
+       WHERE dw.dashboard_id = ?`,
+      [dashboardId]
+    );
     res.json(widgets);
   } catch (error) {
     console.error(error);

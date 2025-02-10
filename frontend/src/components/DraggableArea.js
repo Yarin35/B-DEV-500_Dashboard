@@ -1,4 +1,10 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { useDrop } from "react-dnd";
 import { Box } from "@mui/material";
 import Widget from "./Widget.js";
@@ -7,22 +13,55 @@ import axios from "axios";
 import { ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
 
-const DraggableArea = ({ widgets, dashboardId }) => {
-  const [selectedWidgets, setSelectedWidgets] = useState([]);
+const DraggableArea = forwardRef(({ dashboardId }, ref) => {
+  const [widgets, setWidgets] = useState([]);
+  const [widgetPositions, setWidgetPositions] = useState([]);
   const [selectedWidget, setSelectedWidget] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const dropRef = useRef(null);
+
+  useEffect(() => {
+    const fetchDashboardContent = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/widgets/${dashboardId}/widgets`
+        );
+        console.log("Dashboard content:", response.data);
+        const widgetsData = Array.isArray(response.data) ? response.data : [];
+        const updatedWidgets = widgetsData.map((widget) => {
+          const { defaultWidth, defaultHeight } = getWidgetSize(widget);
+          return { ...widget, defaultWidth, defaultHeight };
+        });
+        setWidgets(updatedWidgets);
+        setWidgetPositions(
+          response.data.map((widget) => ({
+            id: widget.widget_id,
+            position: widget.position || { left: 0, top: 0 },
+            config: widget.config || {},
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching dashboard content:", error);
+      }
+    };
+    fetchDashboardContent();
+  }, [dashboardId]);
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "WIDGET",
-    drop: (item) => {
-      handleDrop(item.widgetName);
+    drop: (item, monitor) => {
+      handleDrop(item.widgetName, monitor);
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
   }));
 
-  const handleDrop = async (widgetName) => {
+  drop(dropRef);
+
+  const handleDrop = async (widgetName, monitor) => {
+    const dropPosition = monitor.getClientOffset();
+    const dropRect = dropRef.current?.getBoundingClientRect();
     let widgetsArray = [];
     try {
       const widget = await axios.get("http://localhost:3001/widgets");
@@ -32,25 +71,57 @@ const DraggableArea = ({ widgets, dashboardId }) => {
     }
     const widget = widgetsArray.find((widget) => widget.name === widgetName);
     if (widget) {
-      setSelectedWidget(widget);
-      setIsModalOpen(true);
+      const newPosition = {
+        left: dropPosition.x - dropRect.left,
+        top: dropPosition.y - dropRect.top,
+      };
+
+      if (!checkOverlap(widget, newPosition)) {
+        setSelectedWidget(widget);
+        setIsModalOpen(true);
+        setWidgetPositions([
+          ...widgetPositions,
+          { id: widget.id, position: newPosition },
+        ]);
+      } else {
+        console.error(
+          "Cannot place widget here, it overlaps with another widget."
+        );
+      }
     }
+  };
+
+  const checkOverlap = (newWidget, newPosition) => {
+    return widgetPositions.some((widget) => {
+      const existingWidget = widgets.find((w) => w.id === widget.id);
+      const existingPosition = widget.position;
+      return (
+        newPosition.left <
+          existingPosition.left + existingWidget.defaultWidth &&
+        newPosition.left + newWidget.defaultWidth > existingPosition.left &&
+        newPosition.top < existingPosition.top + existingWidget.defaultHeight &&
+        newPosition.top + newWidget.defaultHeight > existingPosition.top
+      );
+    });
   };
 
   const handleConfigSave = async (config) => {
     try {
+      const position = widgetPositions.find(
+        (pos) => pos.id === config.id
+      )?.position;
       await axios.post(
         `http://localhost:3001/dashboard/${dashboardId}/widgets`,
         {
           widgetId: config.id,
+          position: JSON.stringify(position),
+          config: JSON.stringify(config.config),
         }
       );
       const { defaultWidth, defaultHeight } = getWidgetSize(config);
 
-      setSelectedWidgets((prevWidgets) => [
-        ...prevWidgets,
-        { ...config, defaultWidth, defaultHeight },
-      ]);
+      const newWidget = { ...config, defaultWidth, defaultHeight };
+      setWidgets((prevWidgets) => [...prevWidgets, newWidget]);
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving widget config: ", error);
@@ -68,9 +139,29 @@ const DraggableArea = ({ widgets, dashboardId }) => {
     return { defaultWidth, defaultHeight };
   };
 
+  const saveDashboard = async () => {
+    try {
+      const widgetsData = widgets.map((widget) => ({
+        id: widget.id,
+        position: widgetPositions.find((pos) => pos.id === widget.id)?.position,
+        config: widget.config,
+      }));
+      await axios.post(`http://localhost:3001/dashboard/${dashboardId}/save`, {
+        widgets: widgetsData,
+      });
+      console.log("Dashboard content saved successfully");
+    } catch (error) {
+      console.error("Error saving dashboard content:", error);
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    saveDashboard,
+  }));
+
   return (
     <Box
-      ref={drop}
+      ref={dropRef}
       sx={{
         width: "100%",
         height: "100%",
@@ -78,24 +169,31 @@ const DraggableArea = ({ widgets, dashboardId }) => {
         position: "relative",
         backgroundColor: isOver ? "lightgray" : "white",
       }}
+      id="draggable-area"
     >
-      {selectedWidgets.map((widget, index) => (
-        <ResizableBox
-          key={widget.id}
-          width={widget.defaultWidth || 300}
-          height={widget.defaultHeight || 300}
-          minConstraints={[150, 150]}
-          maxConstraints={[600, 600]}
-          resizesHandles={["se"]}
-          style={{
-            position: "absolute",
-            top: `${index * 310}px`,
-            left: "10px",
-          }}
-        >
-          <Widget config={widget} />
-        </ResizableBox>
-      ))}
+      {widgets.map((widget, index) => {
+        const position = widgetPositions.find(
+          (pos) => pos.id === widget.widget_id
+        ).position;
+        return (
+          <ResizableBox
+            key={widget.id}
+            width={widget.defaultWidth || 300}
+            height={widget.defaultHeight || 300}
+            minConstraints={[150, 150]}
+            maxConstraints={[600, 600]}
+            resizesHandles={["se"]}
+            style={{
+              position: "absolute",
+              top: `${position.top}px`,
+              left: `${position.left}px`,
+            }}
+          >
+            <Widget config={widget} />
+          </ResizableBox>
+        );
+      })}
+      ;
       <WidgetConfigModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -104,6 +202,6 @@ const DraggableArea = ({ widgets, dashboardId }) => {
       />
     </Box>
   );
-};
+});
 
 export default DraggableArea;

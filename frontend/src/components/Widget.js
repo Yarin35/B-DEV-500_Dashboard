@@ -17,7 +17,7 @@ const Widget = ({ config }) => {
         const token = localStorage.getItem("token");
         const userId = localStorage.getItem("userId");
         const response = await axios.get(
-          `http://localhost:3001/widgets/${config.id}/data`,
+          `http://localhost:3001/widgets/${config.widget_id}/data`,
           {
             params: config.config,
             headers: {
@@ -35,20 +35,20 @@ const Widget = ({ config }) => {
     fetchData();
   }, [config]);
 
-  console.log("Config is: ", config);
+  console.log("Widget config:", config);
   const renderWidget = () => {
-    switch (config.name) {
-      case "Current Weather":
+    switch (config.widget_id) {
+      case 5:
         return <CurrentWeatherWidget data={data} />;
-      case "Forecast Weather":
+      case 6:
         return <ForecastWeatherWidget data={data} />;
-      case "Google Calendar":
+      case 1:
         return <GoogleCalendarWidget data={data} />;
-      case "YouTube Subscribers":
+      case 2:
         return <YouTubeSubscribersWidget data={data} />;
-      case "YouTube Video Views":
+      case 3:
         return <YouTubeVideoViewsWidget data={data} />;
-      case "YouTube Video Comments":
+      case 4:
         return <YouTubeVideoCommentsWidget data={data} />;
       default:
         return <div>Widget not found</div>;

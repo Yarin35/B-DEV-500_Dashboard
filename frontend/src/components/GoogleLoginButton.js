@@ -8,7 +8,7 @@ const GoogleLoginButton = () => {
   const handleLoginSuccess = (response) => {
     const token = response.credential;
     // Send the token to your backend to verify and create a session
-    fetch('http://localhost:3001/auth/google/login', {
+    fetch('http://localhost:8080/auth/google/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

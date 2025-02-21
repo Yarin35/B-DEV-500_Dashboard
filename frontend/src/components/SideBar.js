@@ -11,7 +11,6 @@ import {
   Typography,
   Button,
   Tooltip,
-  TextField,
 } from "@mui/material";
 import { Home, Warning } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -29,8 +28,6 @@ const SideBar = ({ version, dashboardId }) => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [expandedService, setExpandedService] = useState(null);
-  const [login, setLogin] = useState("");
-  const [password, setPassword] = useState("");
   const userId = localStorage.getItem("userId");
   const { showNotification } = useContext(NotificationContext);
 
@@ -106,7 +103,7 @@ const SideBar = ({ version, dashboardId }) => {
     if (selectedService.name === "Intra Epitech") {
       try {
         const response = await axios.get(
-          `http://localhost:3001/auth/microsoft`,
+          `http://localhost:8080/auth/microsoft`,
           {
             params: { serviceId, userId, dashboardId },
           }
@@ -128,7 +125,7 @@ const SideBar = ({ version, dashboardId }) => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:3001/auth/google`, {
+      const response = await axios.get(`http://localhost:8080/auth/google`, {
         params: { serviceId, userId, dashboardId },
       });
 

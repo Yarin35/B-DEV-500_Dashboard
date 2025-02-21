@@ -19,7 +19,7 @@ const Widget = ({ config }) => {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
       const response = await axios.get(
-        `http://localhost:3001/widgets/${config.widget_id}/data`,
+        `http://localhost:8080/widgets/${config.widget_id}/data`,
         {
           params: { ...config.config, commentCount: config.config.commentCount },
           headers: {

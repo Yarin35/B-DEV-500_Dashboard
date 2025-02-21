@@ -26,7 +26,7 @@ const DraggableArea = forwardRef(({ dashboardId }, ref) => {
     const fetchDashboardContent = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/widgets/${dashboardId}/widgets`
+          `http://localhost:8080/widgets/${dashboardId}/widgets`
         );
         console.log("Dashboard content:", response.data);
         const widgetsData = Array.isArray(response.data) ? response.data : [];
@@ -66,7 +66,7 @@ const DraggableArea = forwardRef(({ dashboardId }, ref) => {
     const dropRect = dropRef.current?.getBoundingClientRect();
     let widgetsArray = [];
     try {
-      const widget = await axios.get("http://localhost:3001/widgets");
+      const widget = await axios.get("http://localhost:8080/widgets");
       widgetsArray = widget.data;
     } catch (error) {
       console.error("Error fetching widgets:", error);
@@ -113,7 +113,7 @@ const DraggableArea = forwardRef(({ dashboardId }, ref) => {
         (pos) => pos.id === config.id
       )?.position;
       await axios.post(
-        `http://localhost:3001/dashboard/${dashboardId}/widgets`,
+        `http://localhost:8080/dashboard/${dashboardId}/widgets`,
         {
           widgetId: config.id,
           position: JSON.stringify(position),
@@ -148,7 +148,7 @@ const DraggableArea = forwardRef(({ dashboardId }, ref) => {
         position: widgetPositions.find((pos) => pos.id === widget.id)?.position,
         config: widget.config,
       }));
-      await axios.post(`http://localhost:3001/dashboard/${dashboardId}/save`, {
+      await axios.post(`http://localhost:8080/dashboard/${dashboardId}/save`, {
         widgets: widgetsData,
       });
       console.log("Dashboard content saved successfully");

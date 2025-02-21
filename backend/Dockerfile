@@ -7,6 +7,6 @@ RUN npm install && npm i -g nodemon
 
 COPY . .
 
-EXPOSE 3001
+EXPOSE 8080
 
 CMD ["nodemon", "src/app.js"]

@@ -6,12 +6,13 @@ const servicesRouter = require("./routes/services");
 const widgetsRouter = require("./routes/widgets.js");
 const googleWidgetsRouter = require("./routes/widgets/google.js");
 const weatherWidgetsRouter = require("./routes/widgets/weather.js");
+const aboutRouter = require("./routes/about.js");
 const bodyParser = require("body-parser");
 const passport = require("./config/passport");
 const session = require("express-session");
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 8080;
 
 app.use(cors());
 
@@ -37,6 +38,7 @@ app.use("/services", servicesRouter);
 app.use("/widgets", widgetsRouter);
 app.use("/widgets/", googleWidgetsRouter);
 app.use("/widgets/", weatherWidgetsRouter);
+app.use("/about.json", aboutRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

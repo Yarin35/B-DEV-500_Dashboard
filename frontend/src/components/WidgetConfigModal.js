@@ -11,7 +11,7 @@ const WidgetConfigModal = ({ open, onClose, onSave, widget }) => {
       const fetchWidgetConfig = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:3001/widgets/${widget.id}/config`
+            `http://localhost:8080/widgets/${widget.id}/config`
           );
           setFields(response.data.fields);
         } catch (error) {

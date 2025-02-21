@@ -11,6 +11,7 @@ import Widget from "./Widget.js";
 import WidgetConfigModal from "./WidgetConfigModal.js";
 import axios from "axios";
 import { ResizableBox } from "react-resizable";
+import Draggable from "react-draggable";
 import "react-resizable/css/styles.css";
 
 const DraggableArea = forwardRef(({ dashboardId }, ref) => {
@@ -19,6 +20,7 @@ const DraggableArea = forwardRef(({ dashboardId }, ref) => {
   const [selectedWidget, setSelectedWidget] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dropRef = useRef(null);
+  const draggableRefs = useRef([]);
 
   useEffect(() => {
     const fetchDashboardContent = async () => {
@@ -175,25 +177,42 @@ const DraggableArea = forwardRef(({ dashboardId }, ref) => {
         const position = widgetPositions.find(
           (pos) => pos.id === widget.widget_id
         ).position;
+        if (!draggableRefs.current[index]) {
+          draggableRefs.current[index] = React.createRef();
+        }
         return (
-          <ResizableBox
+          <Draggable
             key={widget.id}
-            width={widget.defaultWidth || 300}
-            height={widget.defaultHeight || 300}
-            minConstraints={[150, 150]}
-            maxConstraints={[600, 600]}
-            resizesHandles={["se"]}
-            style={{
-              position: "absolute",
-              top: `${position.top}px`,
-              left: `${position.left}px`,
+            nodeRef={draggableRefs.current[index]}
+            defaultPosition={{ x: position.left, y: position.top }}
+            onStop={(e, data) => {
+              const newPosition = { left: data.x, top: data.y };
+              setWidgetPositions((prevPositions) =>
+                prevPositions.map((pos) =>
+                  pos.id === widget.widget_id
+                    ? { ...pos, position: newPosition }
+                    : pos
+                )
+              );
             }}
           >
-            <Widget config={widget} />
-          </ResizableBox>
+            <div ref={draggableRefs.current[index]}>
+              <ResizableBox
+                width={widget.defaultWidth || 300}
+                height={widget.defaultHeight || 300}
+                minConstraints={[150, 150]}
+                maxConstraints={[600, 600]}
+                resizeHandles={["se"]}
+                style={{
+                  position: "absolute",
+                }}
+              >
+                <Widget config={widget} />
+              </ResizableBox>
+            </div>
+          </Draggable>
         );
       })}
-      ;
       <WidgetConfigModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}

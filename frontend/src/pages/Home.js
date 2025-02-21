@@ -8,7 +8,6 @@ import {
   ListItem,
   ListItemText,
   IconButton,
-  Link as MuiLink,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -70,16 +69,6 @@ const Home = () => {
       <SideBar version="home" />
       <Box flexGrow={1} p={3}>
         <Typography variant="h4">Welcome to your home page.</Typography>
-        <Typography variant="body1" sx={{ mt: 2 }}>
-          This application allows you to create and manage dashboards with
-          various widgets. You can integrate services like Google Calendar,
-          YouTube, and Weather if you agree on giving the required access to your accounts (e.g. such as read mail to get a list of your mail).
-        </Typography>
-        <Typography variant="body1" sx={{ mt: 2 }}>
-          <MuiLink component={Link} to="/privacy-policy" target="_blank" rel="noopener">
-            Privacy Policy
-          </MuiLink>
-        </Typography>
         <Button
           variant="contained"
           color="primary"

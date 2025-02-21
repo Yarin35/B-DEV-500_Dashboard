@@ -174,9 +174,10 @@ const DraggableArea = forwardRef(({ dashboardId }, ref) => {
       id="draggable-area"
     >
       {widgets.map((widget, index) => {
-        const position = widgetPositions.find(
+        const widgetPosition = widgetPositions.find(
           (pos) => pos.id === widget.widget_id
-        ).position;
+        );
+        const position = widgetPosition ? widgetPosition.position : { left: 0, top: 0 };
         if (!draggableRefs.current[index]) {
           draggableRefs.current[index] = React.createRef();
         }

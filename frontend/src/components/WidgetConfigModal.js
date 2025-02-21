@@ -57,6 +57,13 @@ const WidgetConfigModal = ({ open, onClose, onSave, widget }) => {
             onChange={(e) => handleChange(field, e.target.value)}
           />
         ))}
+        <TextField
+          label="Refresh Rate (ms)"
+          fullWidth
+          margin="normal"
+          value={config.refreshRate || ""}
+          onChange={(e) => handleChange("refreshRate", e.target.value)}
+        />
         <Button variant="contained" color="primary" onClick={handleSave}>
           Save
         </Button>

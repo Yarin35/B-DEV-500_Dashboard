@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography } from "@mui/material";
 
-const GoogleCalendarWidget = ({ data }) => {
+const GoogleCalendarEventsWidget = ({ data }) => {
   return (
     <div>
       <Typography variant="h4" style={{ color: "black" }}>Google Calendar Events</Typography>
@@ -15,4 +15,4 @@ const GoogleCalendarWidget = ({ data }) => {
   );
 };
 
-export default GoogleCalendarWidget;
+export default GoogleCalendarEventsWidget;

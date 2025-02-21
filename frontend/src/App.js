@@ -6,6 +6,7 @@ import Register from "./components/Register.js";
 import PrivateRoute from "./components/PrivateRoute.js";
 import Dashboard from "./pages/Dashboard.js";
 import OAuthCallback from "./components/OAuthCallback";
+import PrivacyPolicy from "./pages/PrivacyPolicy.js";
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <Route path="/home" element={<PrivateRoute><Home /> </PrivateRoute>} />
             <Route path="/dashboard/:id" element={<PrivateRoute><Dashboard /> </PrivateRoute>} />
             <Route path="/oauth-callback" element={<OAuthCallback />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             </Routes>
         </BrowserRouter>
       </header>

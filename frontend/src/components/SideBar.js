@@ -11,6 +11,7 @@ import {
   Typography,
   Button,
   Tooltip,
+  TextField,
 } from "@mui/material";
 import { Home, Warning } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +29,8 @@ const SideBar = ({ version, dashboardId }) => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [expandedService, setExpandedService] = useState(null);
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
   const userId = localStorage.getItem("userId");
   const { showNotification } = useContext(NotificationContext);
 
@@ -99,6 +102,31 @@ const SideBar = ({ version, dashboardId }) => {
 
     const serviceId = selectedService.id;
     const userId = localStorage.getItem("userId");
+
+    if (selectedService.name === "Intra Epitech") {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/auth/microsoft`,
+          {
+            params: { serviceId, userId, dashboardId },
+          }
+        );
+
+        if (response.data && response.data.authUrl) {
+          console.log(
+            "Redirecting to Microsoft OAuth URL:",
+            response.data.authUrl
+          );
+          window.location.href = response.data.authUrl;
+        } else {
+          console.error("Failed to retrieve Microsoft OAuth URL");
+        }
+      } catch (error) {
+        console.error("Error subscribing to service:", error);
+      }
+      return;
+    }
+
     try {
       const response = await axios.get(`http://localhost:3001/auth/google`, {
         params: { serviceId, userId, dashboardId },
@@ -243,10 +271,6 @@ const SideBar = ({ version, dashboardId }) => {
         >
           <Typography variant="h6" component="h2">
             Subscribe to {selectedService?.name}
-          </Typography>
-          <Typography sx={{ mt: 2 }}>
-            Please log in to your {selectedService?.name} account to access this
-            service.
           </Typography>
           <Button
             variant="contained"

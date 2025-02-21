@@ -37,8 +37,25 @@ const refreshGoogleAccessToken = async (refreshToken) => {
 };
 
 router.get("/1/data", async (req, res) => {
-  return res.status(500).send("Deviation !");
-  const { calendarId, accessToken } = req.query;
+  const { calendarId } = req.query;
+  let accessToken = req.headers.authorization.split(" ")[1];
+  const userId = req.headers["x-user-id"];
+
+  let tokenInfo = await verifyGoogleAccessToken(accessToken);
+  if (!tokenInfo) {
+    const [user] = await db.execute(
+      "SELECT refresh_token FROM users WHERE id = ?",
+      [userId]
+    );
+    accessToken = await refreshGoogleAccessToken(user[0].refresh_token);
+    if (!accessToken) {
+      return res.status(401).send("2-Invalid Google OAuth 2.0 access token");
+    }
+    await db.execute("UPDATE users SET access_token = ? WHERE id = ?", [
+      accessToken,
+      userId,
+    ]);
+  }
 
   try {
     const response = await axios.get(
@@ -57,7 +74,6 @@ router.get("/1/data", async (req, res) => {
 });
 
 router.get("/2/data", async (req, res) => {
-  return res.status(500).send("Deviation !");
   const { channelId } = req.query;
   let accessToken = req.headers.authorization.split(" ")[1];
   const userId = req.headers["x-user-id"];
@@ -68,8 +84,6 @@ router.get("/2/data", async (req, res) => {
       "SELECT refresh_token FROM users WHERE id = ?",
       [userId]
     );
-    console.log("usedId: ", userId);
-    console.log("User's refresh token is: ", user);
     accessToken = await refreshGoogleAccessToken(user[0].refresh_token);
     if (!accessToken) {
       return res.status(401).send("2-Invalid Google OAuth 2.0 access token");
@@ -79,8 +93,6 @@ router.get("/2/data", async (req, res) => {
       userId,
     ]);
   }
-
-  console.log("token used is: ", accessToken);
 
   try {
     const response = await axios.get(
@@ -105,8 +117,25 @@ router.get("/2/data", async (req, res) => {
 });
 
 router.get("/3/data", async (req, res) => {
-  return res.status(500).send("Deviation !");
-  const { videoId, accessToken } = req.query;
+  const { videoId } = req.query;
+  let accessToken = req.headers.authorization.split(" ")[1];
+  const userId = req.headers["x-user-id"];
+
+  let tokenInfo = await verifyGoogleAccessToken(accessToken);
+  if (!tokenInfo) {
+    const [user] = await db.execute(
+      "SELECT refresh_token FROM users WHERE id = ?",
+      [userId]
+    );
+    accessToken = await refreshGoogleAccessToken(user[0].refresh_token);
+    if (!accessToken) {
+      return res.status(401).send("2-Invalid Google OAuth 2.0 access token");
+    }
+    await db.execute("UPDATE users SET access_token = ? WHERE id = ?", [
+      accessToken,
+      userId,
+    ]);
+  }
 
   try {
     const response = await axios.get(
@@ -129,8 +158,25 @@ router.get("/3/data", async (req, res) => {
 });
 
 router.get("/4/data", async (req, res) => {
-  return res.status(500).send("Deviation !");
-  const { videoId, accessToken } = req.query;
+  const { videoId, commentCount } = req.query;
+  let accessToken = req.headers.authorization.split(" ")[1];
+  const userId = req.headers["x-user-id"];
+
+  let tokenInfo = await verifyGoogleAccessToken(accessToken);
+  if (!tokenInfo || !tokenInfo.scope.includes("https://www.googleapis.com/auth/youtube.force-ssl")) {
+    const [user] = await db.execute(
+      "SELECT refresh_token FROM users WHERE id = ?",
+      [userId]
+    );
+    accessToken = await refreshGoogleAccessToken(user[0].refresh_token);
+    if (!accessToken) {
+      return res.status(401).send("2-Invalid Google OAuth 2.0 access token");
+    }
+    await db.execute("UPDATE users SET access_token = ? WHERE id = ?", [
+      accessToken,
+      userId,
+    ]);
+  }
 
   try {
     const response = await axios.get(
@@ -139,6 +185,7 @@ router.get("/4/data", async (req, res) => {
         params: {
           part: "snippet",
           videoId: videoId,
+          maxResults: commentCount || 0,
         },
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -151,7 +198,7 @@ router.get("/4/data", async (req, res) => {
       )
     );
   } catch (error) {
-    console.error("Error fetching YouTube video comments:", error);
+    console.error("Error fetching YouTube video comments:", error.response ? error.response.data : error.message);
     res.status(500).send("Error fetching YouTube video comments");
   }
 });

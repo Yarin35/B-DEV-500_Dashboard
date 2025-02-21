@@ -31,7 +31,7 @@ const ForecastWeatherWidget = ({ data }) => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom style={{ color: "black" }}>
         5-Day Forecast
       </Typography>
       <Box display="flex" justifyContent="space-between">
@@ -48,12 +48,12 @@ const ForecastWeatherWidget = ({ data }) => {
               boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <Typography variant="h6">{day.date.split(" ")[0]}</Typography>
+            <Typography variant="h6" style={{ color: "black" }}>{day.date.split(" ")[0]}</Typography>
             {getWeatherIcon(day.condition)}
-            <Typography variant="body1">
+            <Typography variant="body1" style={{ color: "black" }}>
               {day.temperature.toFixed(2)}°C
             </Typography>
-            <Typography variant="body1">{day.condition}</Typography>
+            <Typography variant="body1" style={{ color: "black" }}>{day.condition}</Typography>
           </Box>
         ))}
       </Box>

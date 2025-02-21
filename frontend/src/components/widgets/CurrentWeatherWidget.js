@@ -7,9 +7,9 @@ const CurrentWeatherWidget = ({ data }) => {
 
   return (
     <div>
-      <Typography variant="h4">Current Weather</Typography>
-      <Typography variant="h6">Temperature: {temperature.toFixed(2)}°C</Typography>
-      <Typography variant="body1">Condition: {condition}</Typography>
+      <Typography style={{ color: "black" }} variant="h4">Current Weather</Typography>
+      <Typography style={{ color: "black" }} variant="h6">Temperature: {temperature.toFixed(2)}°C</Typography>
+      <Typography style={{ color: "black" }} variant="body1">Condition: {condition}</Typography>
     </div>
   );
 };

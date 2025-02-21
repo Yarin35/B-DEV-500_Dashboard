@@ -19,7 +19,7 @@ const Widget = ({ config }) => {
         const response = await axios.get(
           `http://localhost:3001/widgets/${config.widget_id}/data`,
           {
-            params: config.config,
+            params: { ...config.config, commentCount: config.config.commentCount },
             headers: {
               Authorization: `Bearer ${token}`,
               "X-User-Id": userId,

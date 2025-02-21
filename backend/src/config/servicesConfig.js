@@ -7,7 +7,7 @@ const services = [
         homepage_link: "/homepage.html",
         privacy_policy_link: "/privacy-policy.html",
         widgets: [
-            { id: 1, name: "Google Calendar", config: { fields: ["calendarId"] } },
+            { id: 1, name: "Google Calendar Events", config: { fields: ["calendarId"] } },
             { id: 2, name: "YouTube Subscribers", config: { fields: ["channelId"] } },
             { id: 3, name: "YouTube Video Views", config: { fields: ["videoId"] } },
             { id: 4, name: "YouTube Video Comments", config: { fields: ["videoId", "commentCount"] } },

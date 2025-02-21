@@ -1,16 +1,15 @@
 import React from "react";
-//import { Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 
 const YouTubeVideoCommentsWidget = ({ data }) => {
-  return ( <div></div>
-//    <div>
-//      <Typography variant="h4">YouTube Video Comments</Typography>
-//      {data.comments.map((comment, index) => (
-//        <Typography key={index} variant="body1">
-//          {comment}
-//        </Typography>
-//      ))}
-//    </div>
+  console.log('data:', data);
+  return ( 
+    <div>
+      <Typography variant="h4" style={{ color: "black" }}>YouTube Video Comments</Typography>
+      {data.map((comment, index) => (
+        <Typography key={index} variant="body1" style={{ color: "black" }} dangerouslySetInnerHTML={{ __html: comment }} />
+      ))}
+    </div>
   );
 };
 

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const services = require('../config/servicesConfig');
 
-router.get('/about.json', (req, res) => {
+router.get('/', (req, res) => {
   const aboutInfo = {
     client: {
       host: req.ip
